@@ -24,7 +24,7 @@ To run this sample code, the dependencies are as follows:
 
 ## Downloading the code
 ```
-$ git clone https://gitlab.aws.dev/tanmatth/eks-presto.git
+$ git clone https://github.com/mtwtan/eks-presto.git
 ```
 ## Creating the Docker container images
 
@@ -67,21 +67,21 @@ kubectl autoscale deployment presto-worker `#The target average CPU utilization`
 
 ### Go to https://YourDomainName:8443/ui/login.html
 
-<img src="https://gitlab.aws.dev/tanmatth/eks-presto/-/raw/master/images/presto-login.png?inline=false" width="800px" />
+<img src="https://github.com/mtwtan/eks-presto/blob/main/images/presto-login.png?inline=false" width="800px" />
 
 ### Login with the username and password that was entered in the parameters.sh. Upon successful login, you can see the Presto UI dashboard:
 
-<img src="https://gitlab.aws.dev/tanmatth/eks-presto/-/raw/master/images/presto-ui.png?inline=false" width="800px" />
+<img src="https://github.com/mtwtan/eks-presto/blob/main/images/presto-ui.png?inline=false" width="800px" />
 
 ### Set up a JDBC connection from an SQL JDBC client:
 
-<img src="https://gitlab.aws.dev/tanmatth/eks-presto/-/raw/master/images/jdbc_connection.png?inline=false" width="800px" />
+<img src="https://github.com/mtwtan/eks-presto/blob/main/images/jdbc_connection.png?inline=false" width="800px" />
 
 ### Make sure that the driver properties are added with the appropriate SSL Truststore information:
-<img src="https://gitlab.aws.dev/tanmatth/eks-presto/-/raw/master/images/jdbc_driver_properties.png?inline=false" width="800px" />
+<img src="https://github.com/mtwtan/eks-presto/blob/main/images/jdbc_driver_properties.png?inline=false" width="800px" />
 
 ### See the tables in the catalog and run a simple SQL script:
-<img src="https://gitlab.aws.dev/tanmatth/eks-presto/-/raw/master/images/view_from_sql_bench.png?inline=false" width="800px" />
+<img src="https://github.com/mtwtan/eks-presto/blob/main/images/view_from_sql_bench.png?inline=false" width="800px" />
 
 ### View the load on the Presto cluster in the UI Dashboard:
-<img src="https://gitlab.aws.dev/tanmatth/eks-presto/-/raw/master/images/presto-ui-status.png?inline=false" width="800px" />
+<img src="https://github.com/mtwtan/eks-presto/blob/main/images/presto-ui-status.png?inline=false" width="800px" />
