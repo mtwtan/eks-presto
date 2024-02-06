@@ -1,0 +1,10 @@
+coordinator=true
+node-scheduler.include-coordinator=false
+http-server.http.port=8080
+query.max-memory=1TB
+query.max-memory-per-node=16GB
+query.max-total-memory-per-node=18GB
+discovery-server.enabled=true
+discovery.uri=http://presto:8080
+http-server.authentication.type=PASSWORD
+http-server.process-forwarded=true

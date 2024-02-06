@@ -1,0 +1,26 @@
+FROM openjdk:11-slim
+
+ENV JAVA_HOME=/usr/local/openjdk-11
+ENV TMP_HOME="/tmp"
+
+# Install dependencies
+RUN apt-get update && apt-get install -y curl python apache2-utils --no-install-recommends
+
+# Create efs folder
+RUN mkdir /efs
+
+# Copy configuration files
+COPY etc/config.properties.coordinator $TMP_HOME
+COPY etc/config.properties.worker $TMP_HOME
+COPY etc/hive.properties $TMP_HOME
+COPY etc/jvm.config.coordinator $TMP_HOME
+COPY etc/jvm.config.worker $TMP_HOME
+COPY etc/log.properties $TMP_HOME
+COPY etc/password-authenticator.properties $TMP_HOME
+COPY etc/tpcds.properties $TMP_HOME
+COPY etc/jmx.properties $TMP_HOME
+
+# Entry point
+COPY entrypoint_efs.sh /opt/entrypoint.sh
+RUN chmod +x /opt/entrypoint.sh
+ENTRYPOINT ["/opt/entrypoint.sh"]

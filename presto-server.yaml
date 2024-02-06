@@ -1,0 +1,179 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: presto
+  namespace: warehouse
+  #annotations:
+    # For NLB
+    #service.beta.kubernetes.io/aws-load-balancer-type: nlb-ip
+    # For ALB
+    #kubernetes.io/ingress.class: alb
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+    protocol: TCP
+  type: NodePort
+  selector:
+    app: presto-coordinator
+
+
+---
+
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: warehouse
+  name: ingress-presto
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/group.name: presto-coordinator
+    alb.ingress.kubernetes.io/certificate-arn:  arn:aws:acm:us-east-2:699130936416:certificate/0fdff309-da80-4326-b1ba-f15844ed7f3f
+spec:
+  rules:
+    - host: prestoeks.myawslearn.tech
+      http:
+        paths:
+          - path: /*
+            backend:
+              serviceName: presto
+              servicePort: 8080
+    
+
+---
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: presto-coordinator
+  namespace: warehouse
+spec:
+  selector:
+    matchLabels:
+      app: presto-coordinator
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: presto-coordinator
+    spec:
+      containers:
+      - name: presto-coordinator
+        image: 699130936416.dkr.ecr.us-east-2.amazonaws.com/matthewtan/presto-server:1.2
+        ports:
+        - containerPort: 8080
+        env:
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: awscred
+              key: username
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: awscred
+              key: password
+        volumeMounts:
+        - name: efs-pvc
+          mountPath: /opt/presto-server/etc/config.properties
+          subPath: config.properties.coordinator
+        - name: efs-pvc
+          mountPath: /opt/presto-server/etc/jvm.config
+          subPath: jvm.config.coordinator
+        - name: efs-pvc
+          subPath: tpcds.properties
+          mountPath: /opt/presto-server/etc/catalog/tpcds.properties
+        - name: efs-pvc
+          subPath: hive.properties
+          mountPath: /tmp/hive.properties
+        - name: efs-pvc
+          subPath: log.properties
+          mountPath: /opt/presto-server/etc/log.properties
+        - name: efs-pvc
+          subPath: password.db
+          mountPath: /etc/password.db
+        - name: efs-pvc
+          subPath: password-authenticator.properties
+          mountPath: /opt/presto-server/etc/password-authenticator.properties
+        resources:
+          requests:
+            memory: "8G"
+            cpu: 2
+          limits:
+            memory: "32G"
+            cpu: 8
+        imagePullPolicy: Always
+      volumes:
+        - name: efs-pvc
+          persistentVolumeClaim:
+            claimName: efs-storage-claim
+
+---
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: presto-worker
+  namespace: warehouse
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: presto-worker
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: presto-worker
+    spec:
+      containers:
+      - name: presto-worker
+        image: 699130936416.dkr.ecr.us-east-2.amazonaws.com/matthewtan/presto-server:1.2
+        env:
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: awscred
+              key: username
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: awscred
+              key: password
+        volumeMounts:
+        - name: efs-pvc
+          mountPath: /opt/presto-server/etc/config.properties
+          subPath: config.properties.worker
+        - name: efs-pvc
+          mountPath: /opt/presto-server/etc/jvm.config
+          subPath: jvm.config.worker
+        - name: efs-pvc
+          subPath: tpcds.properties
+          mountPath: /opt/presto-server/etc/catalog/tpcds.properties
+        - name: efs-pvc
+          subPath: hive.properties
+          mountPath: /tmp/hive.properties
+        - name: efs-pvc
+          subPath: log.properties
+          mountPath: /opt/presto-server/etc/log.properties
+        resources:
+          requests:
+            memory: "8G"
+            cpu: 2
+          limits:
+            memory: "32G"
+            cpu: 8
+        imagePullPolicy: Always
+      volumes:
+        - name: efs-pvc
+          persistentVolumeClaim:
+            claimName: efs-storage-claim
